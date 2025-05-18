@@ -1,7 +1,7 @@
 pipeline {
   agent {
     docker {
-      image 'parag29p/build-tool:v0.6'
+      image 'ganeshwalkoli/ubuntu-build-tool:v0.1'
       args '-v /var/run/docker.sock:/var/run/docker.sock'
     }
   }
@@ -16,7 +16,7 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        git branch: 'main', url: 'https://github.com/ganeshwalkoli/my-nginx-app.git'
+        git branch: 'main', url: 'https://github.com/ganeshwalkoli/my-nginx-app-2.git'
       }
     }
 
@@ -35,7 +35,7 @@ pipeline {
 
     stage('Push Docker Image') {
       steps {
-        withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-ganesh', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
           sh '''
             echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
             docker push $FULL_IMAGE
