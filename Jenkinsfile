@@ -1,7 +1,7 @@
 pipeline {
   agent {
     docker {
-      image 'ganeshwalkoli/ubuntu-build-tool:v0.1'
+      image 'ganeshwalkoli/ubuntu-build-tool:v0.2'
       args '-v /var/run/docker.sock:/var/run/docker.sock'
     }
   }
