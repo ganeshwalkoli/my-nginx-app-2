@@ -1,0 +1,20 @@
+{
+  "name": "my-nginx-app",
+  "version": "0.0.1",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "test": "ng test",
+    "lint": "ng lint"
+  },
+  "dependencies": {
+    "@angular/core": "^16.0.0",
+    "@angular/cli": "^16.0.0",
+    // other dependencies...
+  },
+  "devDependencies": {
+    "typescript": "~5.0.0"
+  }
+}
+
