@@ -1,10 +1,5 @@
 pipeline {
-  agent {
-    docker {
-      image 'ganeshwalkoli/ubuntu-build-tool:v0.3'
-      args '-v /var/run/docker.sock:/var/run/docker.sock'
-    }
-  }
+  agent none
 
   environment {
     IMAGE_NAME = "test-nginx-app"
@@ -15,36 +10,55 @@ pipeline {
 
   stages {
     stage('Checkout') {
+      agent any
       steps {
         git branch: 'main', url: 'https://github.com/ganeshwalkoli/my-nginx-app-2.git'
       }
     }
 
-    stage('Build Angular App') {
-      steps {
-        sh 'npm install'
-        sh 'ng build --configuration production'
+    stage('Build and Push Image') {
+      agent {
+        kubernetes {
+          yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: build-tool
+    image: ganeshwalkoli/ubuntu-build-tool:v0.3
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - name: docker-sock
+      mountPath: /var/run/docker.sock
+  volumes:
+  - name: docker-sock
+    hostPath:
+      path: /var/run/docker.sock
+"""
+        }
       }
-    }
 
-    stage('Build Docker Image') {
       steps {
-        sh 'docker build -t $FULL_IMAGE .'
-      }
-    }
+        container('build-tool') {
+          sh 'npm install'
+          sh 'ng build --configuration production'
 
-    stage('Push Docker Image') {
-      steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub-ganesh', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-          sh '''
-            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-            docker push $FULL_IMAGE
-          '''
+          sh 'docker build -t $FULL_IMAGE .'
+
+          withCredentials([usernamePassword(credentialsId: 'dockerhub-ganesh', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+            sh '''
+              echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+              docker push $FULL_IMAGE
+            '''
+          }
         }
       }
     }
 
     stage('Deploy to Kubernetes') {
+      agent any
       steps {
         sh '''
           kubectl set image deployment/nginx-app nginx-app=$FULL_IMAGE --namespace=default || kubectl apply -f k8s/deployment.yaml
