@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@angular/core": "^16.0.0",
-    "@angular/cli": "^16.0.0",
+    "@angular/cli": "^16.0.0"
   },
   "devDependencies": {
     "typescript": "~5.0.0"
