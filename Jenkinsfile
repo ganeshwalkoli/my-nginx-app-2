@@ -14,6 +14,8 @@ spec:
     volumeMounts:
     - name: docker-sock
       mountPath: /var/run/docker.sock
+  - name: jnlp
+    image: jenkins/inbound-agent:latest
   volumes:
   - name: docker-sock
     hostPath:
