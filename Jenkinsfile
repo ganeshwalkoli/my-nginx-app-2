@@ -42,7 +42,7 @@ spec:
     stage('Build and Push Image') {
       steps {
         sh 'npm install'
-        sh 'ng build --configuration production'
+        sh 'ng build'
 
         sh 'docker build -t $FULL_IMAGE .'
 
